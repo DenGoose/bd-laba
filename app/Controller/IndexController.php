@@ -12,35 +12,37 @@ class IndexController extends Controller
 {
 	public static function init()
 	{
-		ViewManager::show('header', ['title' => 'Поиск маски для разбиения на подсети']);
-		try
-		{
-			$ob = UserTable::query();
-			echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($ob->addSelect('ID')->exec()->fetchAll(), true) . '</pre>';
-		}catch (\Throwable $e)
-		{
-			die('<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($e->getMessage(), true) . '</pre>');
-		}
-		ViewManager::show('footer');
-	}
+		ViewManager::show('header', ['title' => 'Лаба 6 БД']);
 
-	public static function calc()
-	{
-		try
-		{
-			$_SESSION['result'] = (new \App\Network\SubNet(
-				$_POST['class'],
-				$_POST['subnet-count'],
-				$_POST['subnet-devices'])
-			)->calculate();
-			header('Location: /result/');
-			die();
-		}catch (\Throwable $e)
-		{
-			$_SESSION['form'] = $_POST;
-			$_SESSION['msg'] = $e->getMessage();
-			header('Location: /');
-			die();
-		}
+		$pages = [
+			[
+				'url' => '/order/',
+				'name' => 'Заказы'
+			],
+			[
+				'url' => '/pick-point/',
+				'name' => 'Пункты выдачи'
+			],
+			[
+				'url' => '/product-section/',
+				'name' => 'Категории товаров'
+			],
+			[
+				'url' => '/product/',
+				'name' => 'Товары'
+			],
+			[
+				'url' => '/stock/',
+				'name' => 'Склады'
+			],
+			[
+				'url' => '/user/',
+				'name' => 'Покупатели'
+			]
+		];
+
+		ViewManager::show('index', ['result' => $pages]);
+
+		ViewManager::show('footer');
 	}
 }
