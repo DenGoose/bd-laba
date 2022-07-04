@@ -35,7 +35,14 @@ class SectionController extends Controller
 			];
 		}
 
-		ViewManager::show('query', ['query' => [$query]]);
+		$arQuery = [];
+		if (isset($_SESSION['dbQuery']) && mb_strlen($_SESSION['dbQuery']))
+		{
+			$arQuery[] = $_SESSION['dbQuery'];
+			unset($_SESSION['dbQuery']);
+		}
+		$arQuery[] = $query;
+		ViewManager::show('query', ['query' => $arQuery]);
 		ViewManager::show('table', $result);
 		ViewManager::show('footer');
 		return '';
