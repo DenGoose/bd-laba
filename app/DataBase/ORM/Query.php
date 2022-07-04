@@ -149,7 +149,7 @@ class Query
 
 				foreach ($this->join as $alias => $join)
 				{
-					$tables[$alias] = $join["data_class"]::getTableName();
+					$tables[$alias] = class_exists($join["data_class"]) ? $join["data_class"]::getTableName() : $join["data_class"];
 				}
 
 				$columns = Tools::getMap($tables);
@@ -182,9 +182,13 @@ class Query
 
 			foreach ($this->join as $alias => $itm)
 			{
+				$class = class_exists($itm["data_class"]) ? $itm["data_class"]::getTableName() : $itm["data_class"];
+				$ref = explode('.', $itm['reference']['this']);
+				$refTable = count($ref) > 1 ? $ref[0] : $this->tableName;
+				$refOn = count($ref) > 1 ? $ref[1] : $itm["reference"]["this"];
 				$joinStr = ($itm["join_type"]) ? ' ' . $itm["join_type"] : '';
-				$joinStr .= " join " . $itm["data_class"]::getTableName() . ' as '. $alias . " on `$this->tableName`." .
-					$itm["reference"]["this"] . ' = ' .
+				$joinStr .= " join " . $class . ' as '. $alias . " on `${refTable}`." .
+					$refOn . ' = ' .
 					$alias . '.' . $itm["reference"]["ref"] . ' ';
 
 				$arJoin[] = $joinStr;
