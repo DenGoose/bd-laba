@@ -36,9 +36,9 @@ class SectionController extends Controller
 		}
 
 		$arQuery = [];
-		if (isset($_SESSION['dbQuery']) && mb_strlen($_SESSION['dbQuery']))
+		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
 		{
-			$arQuery[] = $_SESSION['dbQuery'];
+			$arQuery = $_SESSION['dbQuery'];
 			unset($_SESSION['dbQuery']);
 		}
 		$arQuery[] = $query;

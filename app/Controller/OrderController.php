@@ -96,9 +96,9 @@ class OrderController extends Controller
 		}
 
 		$arQuery = [];
-		if (isset($_SESSION['dbQuery']) && mb_strlen($_SESSION['dbQuery']))
+		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
 		{
-			$arQuery[] = $_SESSION['dbQuery'];
+			$arQuery = $_SESSION['dbQuery'];
 			unset($_SESSION['dbQuery']);
 		}
 		$arQuery[] = $query;
@@ -110,14 +110,104 @@ class OrderController extends Controller
 
 	public static function add()
 	{
-		ViewManager::show('header', ['title' => 'Заказы']);
+		ViewManager::show('header', ['title' => 'Добавление товара']);
+
+		$query = [];
+
+		$ob = UserTable::query()
+			->addSelect('ID', 'USER_ID')
+			->addSelect('NAME', 'USER_NAME')
+			->addSelect('SECOND_NAME', 'USER_SECOND_NAME')
+			->addSelect('LAST_NAME', 'USER_LAST_NAME');
+
+		$query[] = $ob->getQuery();
+		$usersObj = $ob->exec();
+		$users = [];
+
+		while ($itm = $usersObj->fetch())
+		{
+			$users[] = [
+				'id' => $itm['USER_ID'],
+				'name' => implode(' ', [$itm['USER_NAME'], $itm['USER_SECOND_NAME'], $itm['USER_LAST_NAME']])
+			];
+		}
+
+		$ob = PickPointTable::query()
+			->addSelect('ID', 'PICK_POINT_ID')
+			->addSelect('ADDRESS', 'PICK_POINT_ADDRESS');
+
+		$query[] = $ob->getQuery();
+		$pickPointObj = $ob->exec();
+		$pickPoints = [];
+
+		while ($itm = $pickPointObj->fetch())
+		{
+			$pickPoints[] = [
+				'id' => $itm['PICK_POINT_ID'],
+				'name' => $itm['PICK_POINT_ADDRESS']
+			];
+		}
+
+		$ob = ProductTable::query()
+			->addSelect('ID', 'PRODUCT_ID')
+			->addSelect('NAME', 'PRODUCT_NAME');
+
+		$query[] = $ob->getQuery();
+		$productsObj = $ob->exec();
+		$products = [];
+
+		while ($itm = $productsObj->fetch())
+		{
+			$products[] = [
+				'id' => $itm['PRODUCT_ID'],
+				'name' => $itm['PRODUCT_NAME']
+			];
+		}
+
+		$result['result'] = [
+			'action' => '/order/add/',
+			'items' => [
+				[
+					'name' => 'Покупатель',
+					'code' => 'USER',
+					'type' => 'list',
+					'value' => '',
+					'list_values' => $users
+				],
+				[
+					'name' => 'Пункт выдачи',
+					'code' => 'PICK_POINT',
+					'type' => 'list',
+					'value' => '',
+					'list_values' => $pickPoints
+				],
+				[
+					'name' => 'Сумма',
+					'code' => 'TOTAL_PRICE',
+					'type' => 'text',
+					'value' => '',
+					'list_values' => []
+				],
+				[
+					'name' => 'Товары',
+					'code' => 'PRODUCT',
+					'type' => 'multiple_list',
+					'value' => '',
+					'list_values' => $products
+				],
+			],
+		];
+		ViewManager::show('query', ['query' => $query]);
+		ViewManager::show('record', $result);
+
 		ViewManager::show('footer');
 		return '';
 	}
 
 	public static function addAction()
 	{
-
+		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
+		return '';
 	}
 
 	public static function update()

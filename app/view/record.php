@@ -10,6 +10,14 @@
                     <option <?=(isset($item['value']) && $item['value'] == $list['id']) ? 'selected' : ''?> value="<?=$list['id']?>"><?=$list['name']?></option>
                 <?php endforeach;?>
             </select>
+            <?php elseif ($item['type'] == 'multiple_list'):?>
+            <p><?=$item['name']?></p>
+                <?php foreach ($item['list_values'] as $list):?>
+                <div class="mb-3 form-check">
+                    <input <?=(isset($item['value']) && $item['value'] == $list['id']) ? 'checked' : ''?> name="<?=$item['code']?>[]" value="<?=$list['id']?>" type="checkbox" class="form-check-input" id="input<?=$item['code']?>-<?=$list['id']?>">
+                    <label class="form-check-label" for="input<?=$item['code']?>-<?=$list['id']?>"><?=$list['name']?></label>
+                </div>
+                <?php endforeach;?>
 			<?php else:?>
             <div class="mb-3">
                 <label for="input<?=$item['code']?>" class="form-label"><?=$item['name']?></label>
@@ -20,5 +28,5 @@
             </div>
             <?php endif;?>
     <?php endforeach;?>
-    <button type="submit" class="btn btn-dark">Отправить</button>
+    <button type="submit" class="btn btn-dark mb-4">Отправить</button>
 </form>

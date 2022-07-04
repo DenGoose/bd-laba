@@ -37,9 +37,9 @@ class StockController extends Controller
 		}
 
 		$arQuery = [];
-		if (isset($_SESSION['dbQuery']) && mb_strlen($_SESSION['dbQuery']))
+		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
 		{
-			$arQuery[] = $_SESSION['dbQuery'];
+			$arQuery = $_SESSION['dbQuery'];
 			unset($_SESSION['dbQuery']);
 		}
 		$arQuery[] = $query;
@@ -72,6 +72,7 @@ class StockController extends Controller
 				],
 			],
 		];
+		ViewManager::show('query', ['query' => []]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');

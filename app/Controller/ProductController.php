@@ -48,9 +48,9 @@ class ProductController extends Controller
 		}
 
 		$arQuery = [];
-		if (isset($_SESSION['dbQuery']) && mb_strlen($_SESSION['dbQuery']))
+		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
 		{
-			$arQuery[] = $_SESSION['dbQuery'];
+			$arQuery = $_SESSION['dbQuery'];
 			unset($_SESSION['dbQuery']);
 		}
 		$arQuery[] = $query;
@@ -62,7 +62,53 @@ class ProductController extends Controller
 
 	public static function add()
 	{
-		ViewManager::show('header', ['title' => 'Заказы']);
+		ViewManager::show('header', ['title' => 'Добавление товара']);
+
+		$ob = SectionTable::query()
+			->addSelect('ID', 'SECTION_ID')
+			->addSelect('NAME', 'SECTION_NAME');
+
+		$query = $ob->getQuery();
+		$sectionObj = $ob->exec();
+		$sections = [];
+
+		while ($itm = $sectionObj->fetch())
+		{
+			$sections[] = [
+				'id' => $itm['SECTION_ID'],
+				'name' => $itm['SECTION_NAME']
+			];
+		}
+
+		$result['result'] = [
+			'action' => '/product/add/',
+			'items' => [
+				[
+					'name' => 'Название',
+					'code' => 'NAME',
+					'type' => 'text',
+					'value' => '',
+					'list_values' => []
+				],
+				[
+					'name' => 'Категория',
+					'code' => 'SECTION',
+					'type' => 'list',
+					'value' => '',
+					'list_values' => $sections
+				],
+				[
+					'name' => 'Цена',
+					'code' => 'PRICE',
+					'type' => 'text',
+					'value' => '',
+					'list_values' => []
+				],
+			],
+		];
+		ViewManager::show('query', ['query' => [$query]]);
+		ViewManager::show('record', $result);
+
 		ViewManager::show('footer');
 		return '';
 	}

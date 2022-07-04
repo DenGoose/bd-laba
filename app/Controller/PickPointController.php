@@ -35,9 +35,9 @@ class PickPointController extends Controller
 		}
 
 		$arQuery = [];
-		if (isset($_SESSION['dbQuery']) && mb_strlen($_SESSION['dbQuery']))
+		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
 		{
-			$arQuery[] = $_SESSION['dbQuery'];
+			$arQuery = $_SESSION['dbQuery'];
 			unset($_SESSION['dbQuery']);
 		}
 		$arQuery[] = $query;
@@ -49,7 +49,23 @@ class PickPointController extends Controller
 
 	public static function add()
 	{
-		ViewManager::show('header', ['title' => 'Заказы']);
+		ViewManager::show('header', ['title' => 'Добавление пункта выдачи']);
+
+		$result['result'] = [
+			'action' => '/pick-point/add/',
+			'items' => [
+				[
+					'name' => 'Адрес',
+					'code' => 'ADDRESS',
+					'type' => 'text',
+					'value' => '',
+					'list_values' => []
+				],
+			],
+		];
+		ViewManager::show('query', ['query' => []]);
+		ViewManager::show('record', $result);
+
 		ViewManager::show('footer');
 		return '';
 	}
