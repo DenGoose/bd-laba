@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Controller;
 use App\Tables\ProductTable;
 use App\Tables\SectionTable;
+use App\Tables\StockTable;
 use App\ViewManager;
 
 class ProductController extends Controller
@@ -16,7 +17,7 @@ class ProductController extends Controller
 		$result['currentUrl'] = $_SERVER['REQUEST_URI'];
 		$result['result'] = [
 			'columns' => [
-				'ID', 'Название', 'Категория', 'Цена'
+				'ID', 'Название', 'Категория', 'Цена', 'Склады'
 			]
 		];
 
@@ -29,21 +30,55 @@ class ProductController extends Controller
 				],
 				'join_type' => 'inner'
 			])
+			->registerRuntimeField('PRODUCT_STOCK', [
+				'data_class' => ProductTable::PRODUCT_STOCK_TABLE,
+				'reference' => [
+					'this' => 'ID',
+					'ref' => 'PRODUCT_ID',
+				],
+				'join_type' => 'inner'
+			])
+			->registerRuntimeField('STOCK', [
+				'data_class' => StockTable::class,
+				'reference' => [
+					'this' => 'PRODUCT_STOCK.STOCK_ID',
+					'ref' => 'ID',
+				],
+				'join_type' => 'inner'
+			])
 			->addSelect('product.ID', 'PRODUCT_ID')
 			->addSelect('product.NAME', 'PRODUCT_NAME')
 			->addSelect('SECTION.NAME', 'SECTION_NAME')
-			->addSelect('product.PRICE', 'PRODUCT_PRICE');
+			->addSelect('product.PRICE', 'PRODUCT_PRICE')
+			->addSelect('STOCK.CITY', 'STOCK_CITY')
+			->addSelect('STOCK.ADDRESS', 'STOCK_ADDRESS');
 
 		$query = $ob->getQuery();
 		$users = $ob->exec();
+		$stocks = [];
 
 		while ($itm = $users->fetch())
 		{
+			if (!isset($stocks[$itm['PRODUCT_ID']]))
+			{
+				$stocks[$itm['PRODUCT_ID']] = [
+					'PRODUCT_ID' => $itm['PRODUCT_ID'],
+					'PRODUCT_NAME' => $itm['PRODUCT_NAME'],
+					'SECTION_NAME' => $itm['SECTION_NAME'],
+					'PRODUCT_PRICE' => $itm['PRODUCT_PRICE']
+				];
+			}
+			$stocks[$itm['PRODUCT_ID']]['STOCKS'][] = 'г. ' . $itm['STOCK_CITY'] . ' ' . $itm['STOCK_ADDRESS'];
+		}
+
+		foreach ($stocks as $stock)
+		{
 			$result['result']['items'][] = [
-				'PRODUCT_ID' => $itm['PRODUCT_ID'],
-				'PRODUCT_NAME' => $itm['PRODUCT_NAME'],
-				'SECTION_NAME' => $itm['SECTION_NAME'],
-				'PRODUCT_PRICE' => $itm['PRODUCT_PRICE']
+				'PRODUCT_ID' => $stock['PRODUCT_ID'],
+				'PRODUCT_NAME' => $stock['PRODUCT_NAME'],
+				'SECTION_NAME' => $stock['SECTION_NAME'],
+				'PRODUCT_PRICE' => $stock['PRODUCT_PRICE'],
+				'STOCKS' => '<p>' . implode('</p><p>', $stock['STOCKS']) . '</p>'
 			];
 		}
 
@@ -64,11 +99,13 @@ class ProductController extends Controller
 	{
 		ViewManager::show('header', ['title' => 'Добавление товара']);
 
+		$query = [];
+
 		$ob = SectionTable::query()
 			->addSelect('ID', 'SECTION_ID')
 			->addSelect('NAME', 'SECTION_NAME');
 
-		$query = $ob->getQuery();
+		$query[] = $ob->getQuery();
 		$sectionObj = $ob->exec();
 		$sections = [];
 
@@ -77,6 +114,23 @@ class ProductController extends Controller
 			$sections[] = [
 				'id' => $itm['SECTION_ID'],
 				'name' => $itm['SECTION_NAME']
+			];
+		}
+
+		$ob = StockTable::query()
+			->addSelect('ID', 'STOCK_ID')
+			->addSelect('CITY', 'STOCK_CITY')
+			->addSelect('ADDRESS', 'STOCK_ADDRESS');
+
+		$query[] = $ob->getQuery();
+		$stocksObj = $ob->exec();
+		$stocks = [];
+
+		while ($itm = $stocksObj->fetch())
+		{
+			$stocks[] = [
+				'id' => $itm['STOCK_ID'],
+				'name' => 'г. ' . $itm['STOCK_CITY'] . ' ' . $itm['STOCK_ADDRESS']
 			];
 		}
 
@@ -104,9 +158,16 @@ class ProductController extends Controller
 					'value' => '',
 					'list_values' => []
 				],
+				[
+					'name' => 'Склады',
+					'code' => 'STOCK',
+					'type' => 'multiple_list',
+					'value' => '',
+					'list_values' => $stocks
+				],
 			],
 		];
-		ViewManager::show('query', ['query' => [$query]]);
+		ViewManager::show('query', ['query' => $query]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');
