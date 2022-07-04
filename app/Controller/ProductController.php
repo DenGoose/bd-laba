@@ -74,7 +74,7 @@ class ProductController extends Controller
 		foreach ($stocks as $stock)
 		{
 			$result['result']['items'][] = [
-				'PRODUCT_ID' => $stock['PRODUCT_ID'],
+				'ID' => $stock['PRODUCT_ID'],
 				'PRODUCT_NAME' => $stock['PRODUCT_NAME'],
 				'SECTION_NAME' => $stock['SECTION_NAME'],
 				'PRODUCT_PRICE' => $stock['PRODUCT_PRICE'],
