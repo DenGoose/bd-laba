@@ -94,12 +94,37 @@ abstract class DataManager
 	 */
 	public static function update($id, $params): bool
 	{
-		if (!intval($id) || !$$params)
+		if (!intval($id) || !$params)
 		{
 			throw new Exception("Empty parameters");
 		}
 
-		// TODO update
+		$sql = "update " . static::getTableName() . " set ";
+		$prepare = [];
+
+		$countSelect = count($params);
+		$counter = 0;
+		foreach ($params as $column => $value)
+		{
+			$counter++;
+			$temp = static::getAlias($column);
+
+			$prepare[$temp] = $value;
+
+			$sql .= "${column} = ${temp}";
+
+			if ($counter != $countSelect)
+			{
+				$sql .= ', ';
+			}
+		}
+
+		$sql .= " where id = :id";
+		$prepare[":id"] = $id;
+
+		$ob = DB::getInstance()->getConnection()->prepare($sql);
+
+		return $ob->execute($prepare);
 	}
 
 	/**
@@ -127,5 +152,10 @@ abstract class DataManager
 		$_SESSION['dbQuery'][] = $tempSql;
 
 		return $stmt->execute([':id' => $id]);
+	}
+
+	protected static function getAlias(string $column): string
+	{
+		return ':' . str_replace('.', '_', $column);
 	}
 }

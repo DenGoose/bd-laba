@@ -154,8 +154,14 @@ class UserController extends Controller
 
 	public static function updateAction()
 	{
-		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
-		return '';
+		UserTable::update($_POST['ID'], [
+			'NAME' => $_POST['NAME'],
+			'SECOND_NAME' => $_POST['SECOND_NAME'],
+			'LAST_NAME' => $_POST['LAST_NAME']
+		]);
+
+		header('Location: /user/');
+		die();
 	}
 
 	public static function deleteAction()
