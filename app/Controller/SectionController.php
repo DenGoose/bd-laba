@@ -83,14 +83,43 @@ class SectionController extends Controller
 
 	public static function update()
 	{
-		ViewManager::show('header', ['title' => 'Заказы']);
+		$ob = SectionTable::query()
+			->where('ID', $_GET['id'])
+			->addSelect('ID', 'SECTION_ID')
+			->addSelect('NAME', 'SECTION_NAME');
+
+		$query = $ob->getQuery();
+		$section = $ob->exec()->fetch();
+
+		ViewManager::show('header', ['title' => 'Обновление категории товара №' . $section['SECTION_ID']]);
+
+		$result['result'] = [
+			'action' => '/product-section/update/',
+			'items' => [
+				[
+					'name' => 'Название категории',
+					'code' => 'NAME',
+					'type' => 'text',
+					'value' => $section['SECTION_NAME'],
+					'list_values' => []
+				],
+				[
+					'code' => 'ID',
+					'value' => $section['SECTION_ID']
+				]
+			],
+		];
+		ViewManager::show('query', ['query' => [$query]]);
+		ViewManager::show('record', $result);
+
 		ViewManager::show('footer');
 		return '';
 	}
 
 	public static function updateAction()
 	{
-
+		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
+		return '';
 	}
 
 	public static function deleteAction()

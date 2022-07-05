@@ -1,8 +1,8 @@
 <?php /* @var array $params */ ?>
     <form class="pt-4" method="post" action="<?=$params['result']['action']?>" enctype="multipart/form-data">
     <?php foreach ($params['result']['items'] as $item): ?>
-            <?php if (isset($item['value']) && $item['code'] == 'id'):?>
-                <input type="hidden" name="id" value="<?=$item['value']?>">
+            <?php if (isset($item['value']) && ($item['code'] == 'id' || $item['code'] == 'ID')):?>
+                <input type="hidden" name="<?=$item['code']?>" value="<?=$item['value']?>">
             <?php elseif ($item['type'] == 'list'):?>
             <label for="input<?=$item['code']?>" class="form-label"><?=$item['name']?></label>
             <select class="form-select form-select-lg mb-3" id="input<?=$item['code']?>" name="<?=$item['code']?>" aria-label="Выберите клиента" required>
