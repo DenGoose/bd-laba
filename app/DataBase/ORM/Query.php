@@ -211,7 +211,16 @@ class Query
 	{
 		try
 		{
-			$this->result = DB::getInstance()->getConnection()->prepare($this->getQuery());
+			$sql = $this->getQuery();
+
+			$tempSql = $sql;
+			foreach ($this->values as $alias => $field)
+			{
+				$tempSql = str_replace($alias, $field, $tempSql);
+			}
+			$_SESSION['dbQuery'][] = $tempSql;
+
+			$this->result = DB::getInstance()->getConnection()->prepare($sql);
 
 			$this->result->execute($this->values);
 

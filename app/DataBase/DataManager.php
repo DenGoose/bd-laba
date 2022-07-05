@@ -122,7 +122,12 @@ abstract class DataManager
 		$sql .= " where id = :id";
 		$prepare[":id"] = $id;
 
-		$_SESSION['dbQuery'][] = $sql;
+		$tempSql = $sql;
+		foreach ($prepare as $alias => $field)
+		{
+			$tempSql = str_replace($alias, $field, $tempSql);
+		}
+		$_SESSION['dbQuery'][] = $tempSql;
 
 		$ob = DB::getInstance()->getConnection()->prepare($sql);
 

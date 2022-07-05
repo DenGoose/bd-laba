@@ -1,6 +1,6 @@
 create table user
 (
-    ID          int          not null
+    ID          int          auto_increment
         primary key,
     NAME        varchar(255) null,
     SECOND_NAME varchar(255) null,

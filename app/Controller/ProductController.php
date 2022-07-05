@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Controller;
-use App\DataBase\ORM\Query;
 use App\DataBase\Tools;
 use App\Tables\ProductTable;
 use App\Tables\SectionTable;
@@ -23,7 +22,7 @@ class ProductController extends Controller
 			]
 		];
 
-		$ob = ProductTable::query()
+		$users = ProductTable::query()
 			->registerRuntimeField('SECTION', [
 				'data_class' => SectionTable::class,
 				'reference' => [
@@ -54,10 +53,9 @@ class ProductController extends Controller
 			->addSelect('SECTION.NAME', 'SECTION_NAME')
 			->addSelect('product.PRICE', 'PRODUCT_PRICE')
 			->addSelect('STOCK.CITY', 'STOCK_CITY')
-			->addSelect('STOCK.ADDRESS', 'STOCK_ADDRESS');
+			->addSelect('STOCK.ADDRESS', 'STOCK_ADDRESS')
+			->exec();
 
-		$query = $ob->getQuery();
-		$users = $ob->exec();
 		$stocks = [];
 
 		while ($itm = $users->fetch())
@@ -85,14 +83,7 @@ class ProductController extends Controller
 			];
 		}
 
-		$arQuery = [];
-		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
-		{
-			$arQuery = $_SESSION['dbQuery'];
-			unset($_SESSION['dbQuery']);
-		}
-		$arQuery[] = $query;
-		ViewManager::show('query', ['query' => $arQuery]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('table', $result);
 		ViewManager::show('footer');
 		return '';
@@ -102,14 +93,11 @@ class ProductController extends Controller
 	{
 		ViewManager::show('header', ['title' => 'Добавление товара']);
 
-		$query = [];
-
-		$ob = SectionTable::query()
+		$sectionObj = SectionTable::query()
 			->addSelect('ID', 'SECTION_ID')
-			->addSelect('NAME', 'SECTION_NAME');
+			->addSelect('NAME', 'SECTION_NAME')
+			->exec();
 
-		$query[] = $ob->getQuery();
-		$sectionObj = $ob->exec();
 		$sections = [];
 
 		while ($itm = $sectionObj->fetch())
@@ -120,13 +108,12 @@ class ProductController extends Controller
 			];
 		}
 
-		$ob = StockTable::query()
+		$stocksObj = StockTable::query()
 			->addSelect('ID', 'STOCK_ID')
 			->addSelect('CITY', 'STOCK_CITY')
-			->addSelect('ADDRESS', 'STOCK_ADDRESS');
+			->addSelect('ADDRESS', 'STOCK_ADDRESS')
+			->exec();
 
-		$query[] = $ob->getQuery();
-		$stocksObj = $ob->exec();
 		$stocks = [];
 
 		while ($itm = $stocksObj->fetch())
@@ -170,7 +157,7 @@ class ProductController extends Controller
 				],
 			],
 		];
-		ViewManager::show('query', ['query' => $query]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');
@@ -205,7 +192,7 @@ class ProductController extends Controller
 
 	public static function update()
 	{
-		$ob = ProductTable::query()
+		$users = ProductTable::query()
 			->registerRuntimeField('SECTION', [
 				'data_class' => SectionTable::class,
 				'reference' => [
@@ -235,11 +222,9 @@ class ProductController extends Controller
 			->addSelect('product.NAME', 'PRODUCT_NAME')
 			->addSelect('product.PRICE', 'PRODUCT_PRICE')
 			->addSelect('SECTION.ID', 'SECTION_ID')
-			->addSelect('STOCK.ID', 'STOCK_ID');
+			->addSelect('STOCK.ID', 'STOCK_ID')
+			->exec();
 
-		$query = [];
-		$query[] = $ob->getQuery();
-		$users = $ob->exec();
 		$result = [];
 
 		while ($itm = $users->fetch())
@@ -258,12 +243,11 @@ class ProductController extends Controller
 
 		ViewManager::show('header', ['title' => 'Обновление товара №' . $result['PRODUCT_ID']]);
 
-		$ob = SectionTable::query()
+		$sectionObj = SectionTable::query()
 			->addSelect('ID', 'SECTION_ID')
-			->addSelect('NAME', 'SECTION_NAME');
+			->addSelect('NAME', 'SECTION_NAME')
+			->exec();
 
-		$query[] = $ob->getQuery();
-		$sectionObj = $ob->exec();
 		$sections = [];
 
 		while ($itm = $sectionObj->fetch())
@@ -274,15 +258,13 @@ class ProductController extends Controller
 			];
 		}
 
-		$ob = StockTable::query()
+		$stocksObj = StockTable::query()
 			->addSelect('ID', 'STOCK_ID')
 			->addSelect('CITY', 'STOCK_CITY')
-			->addSelect('ADDRESS', 'STOCK_ADDRESS');
+			->addSelect('ADDRESS', 'STOCK_ADDRESS')
+			->exec();
 
-		$query[] = $ob->getQuery();
-		$stocksObj = $ob->exec();
 		$stocks = [];
-
 
 		while ($itm = $stocksObj->fetch())
 		{
@@ -329,7 +311,7 @@ class ProductController extends Controller
 				]
 			],
 		];
-		ViewManager::show('query', ['query' => $query]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');
@@ -399,7 +381,6 @@ class ProductController extends Controller
 			->where('ID', $_GET['id'])
 			->addSelect('PRICE', 'PRODUCT_PRICE');
 
-		$_SESSION['dbQuery'][] = $ob->getQuery();
 		$price = $ob->exec()->fetch()['PRODUCT_PRICE'];
 
 		ProductTable::delete($_GET['id']);

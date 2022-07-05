@@ -28,8 +28,6 @@ class ProductTable extends \App\DataBase\DataManager
 			->addSelect('TOTAL_PRICE', 'ORDER_TOTAL_PRICE')
 			->addSelect('ID', 'ORDER_ID');
 
-		$_SESSION['dbQuery'][] = $ob->getQuery();
-
 		$orders = $ob->exec();
 
 		while ($itm = $orders->fetch())

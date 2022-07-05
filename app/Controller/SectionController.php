@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Controller;
+use App\DataBase\Tools;
 use App\Tables\SectionTable;
 use App\Tables\UserTable;
 use App\ViewManager;
@@ -22,8 +23,8 @@ class SectionController extends Controller
 
 		$ob = SectionTable::query()
 			->addOrder('ID')
-			->addSelect('ID')
-			->addSelect('NAME');
+			->addSelect('ID', 'SECTION_ID')
+			->addSelect('NAME', 'SECTION_NAME');
 
 		$query = $ob->getQuery();
 		$users = $ob->exec();
@@ -31,19 +32,12 @@ class SectionController extends Controller
 		while ($itm = $users->fetch())
 		{
 			$result['result']['items'][] = [
-				'ID' => $itm['product_section_ID_ALIAS'],
-				'NAME' => $itm['product_section_NAME_ALIAS'],
+				'ID' => $itm['SECTION_ID'],
+				'NAME' => $itm['SECTION_NAME'],
 			];
 		}
 
-		$arQuery = [];
-		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
-		{
-			$arQuery = $_SESSION['dbQuery'];
-			unset($_SESSION['dbQuery']);
-		}
-		$arQuery[] = $query;
-		ViewManager::show('query', ['query' => $arQuery]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('table', $result);
 		ViewManager::show('footer');
 		return '';
@@ -65,8 +59,8 @@ class SectionController extends Controller
 				],
 			],
 		];
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
-
 		ViewManager::show('footer');
 		return '';
 	}
@@ -109,7 +103,7 @@ class SectionController extends Controller
 				]
 			],
 		];
-		ViewManager::show('query', ['query' => [$query]]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');

@@ -1,6 +1,6 @@
 create table pick_point
 (
-    ID      int          not null
+    ID      int          auto_increment
         primary key,
     ADDRESS varchar(255) null
 );

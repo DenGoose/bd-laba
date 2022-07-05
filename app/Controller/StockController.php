@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Controller;
+use App\DataBase\Tools;
 use App\Tables\StockTable;
 use App\ViewManager;
 
@@ -21,9 +22,9 @@ class StockController extends Controller
 
 		$ob = StockTable::query()
 			->addOrder('ID')
-			->addSelect('ID')
-			->addSelect('CITY')
-			->addSelect('ADDRESS');
+			->addSelect('ID', 'STOCK_ID')
+			->addSelect('CITY', 'STOCK_CITY')
+			->addSelect('ADDRESS', 'STOCK_ADDRESS');
 
 		$query = $ob->getQuery();
 		$users = $ob->exec();
@@ -31,20 +32,13 @@ class StockController extends Controller
 		while ($itm = $users->fetch())
 		{
 			$result['result']['items'][] = [
-				'ID' => $itm['stock_ID_ALIAS'],
-				'CITY' => $itm['stock_CITY_ALIAS'],
-				'ADDRESS' => $itm['stock_ADDRESS_ALIAS'],
+				'ID' => $itm['STOCK_ID'],
+				'CITY' => $itm['STOCK_CITY'],
+				'ADDRESS' => $itm['STOCK_ADDRESS'],
 			];
 		}
 
-		$arQuery = [];
-		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
-		{
-			$arQuery = $_SESSION['dbQuery'];
-			unset($_SESSION['dbQuery']);
-		}
-		$arQuery[] = $query;
-		ViewManager::show('query', ['query' => $arQuery]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('table', $result);
 		ViewManager::show('footer');
 		return '';
@@ -73,7 +67,7 @@ class StockController extends Controller
 				],
 			],
 		];
-		ViewManager::show('query', ['query' => []]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');
@@ -127,7 +121,7 @@ class StockController extends Controller
 				]
 			],
 		];
-		ViewManager::show('query', ['query' => [$query]]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');

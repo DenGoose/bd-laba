@@ -1,6 +1,6 @@
 create table stock
 (
-    ID      int          not null
+    ID      int         auto_increment
         primary key,
     CITY    varchar(255) null,
     ADDRESS varchar(255) null

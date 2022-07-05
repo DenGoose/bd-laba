@@ -26,7 +26,7 @@ class OrderController extends Controller
 			]
 		];
 
-		$ob = OrderTable::query()
+		$users = OrderTable::query()
 			->registerRuntimeField('USER', [
 				'data_class' => UserTable::class,
 				'reference' => [
@@ -65,10 +65,9 @@ class OrderController extends Controller
 			->addSelect('USER.ID', 'USER_ID')
 			->addSelect('PICK_POINT.ADDRESS', 'PICK_POINT_ADDRESS')
 			->addSelect('PRODUCT.NAME', 'PRODUCT_NAME')
-			->addOrder('order.ID', 'ASC');
+			->addOrder('order.ID', 'ASC')
+			->exec();
 
-		$query = $ob->getQuery();
-		$users = $ob->exec();
 		$orders = [];
 
 		while ($itm = $users->fetch())
@@ -96,14 +95,7 @@ class OrderController extends Controller
 			];
 		}
 
-		$arQuery = [];
-		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
-		{
-			$arQuery = $_SESSION['dbQuery'];
-			unset($_SESSION['dbQuery']);
-		}
-		$arQuery[] = $query;
-		ViewManager::show('query', ['query' => $arQuery]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('table', $result);
 		ViewManager::show('footer');
 		return '';
@@ -192,7 +184,7 @@ class OrderController extends Controller
 				],
 			],
 		];
-		ViewManager::show('query', ['query' => $query]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');
@@ -372,7 +364,7 @@ class OrderController extends Controller
 				]
 			],
 		];
-		ViewManager::show('query', ['query' => $query]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');

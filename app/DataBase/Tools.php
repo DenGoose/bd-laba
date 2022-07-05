@@ -47,7 +47,12 @@ class Tools
 
 		$sql .= implode(', ', array_keys($prepare)) . ')';
 
-		$_SESSION['dbQuery'][] = 'select sum(${field}) as SUM from ${table} where ID in ('. implode(', ', $prepare) . ')';
+		$tempSql = $sql;
+		foreach ($prepare as $alias => $field)
+		{
+			$tempSql = str_replace($alias, $field, $tempSql);
+		}
+		$_SESSION['dbQuery'][] = $tempSql;
 
 		$smt = DB::getInstance()->getConnection()->prepare($sql);
 		$smt->execute($prepare);
@@ -80,8 +85,25 @@ class Tools
 			$tempSql = str_replace($alias, $val, $tempSql);
 		}
 
+		$tempSql = $sql;
+		foreach ($props as $alias => $field)
+		{
+			$tempSql = str_replace($alias, $field, $tempSql);
+		}
 		$_SESSION['dbQuery'][] = $tempSql;
 
 		return $stmt->execute($props);
+	}
+
+	public static function getQuery()
+	{
+		$arQuery = [];
+		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
+		{
+			$arQuery = $_SESSION['dbQuery'];
+			unset($_SESSION['dbQuery']);
+		}
+
+		return $arQuery;
 	}
 }

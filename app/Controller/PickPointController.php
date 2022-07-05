@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Controller;
+use App\DataBase\Tools;
 use App\Tables\PickPointTable;
 use App\ViewManager;
 
@@ -20,8 +21,8 @@ class PickPointController extends Controller
 		];
 
 		$ob = PickPointTable::query()
-			->addSelect('ID')
-			->addSelect('ADDRESS');
+			->addSelect('ID', 'PICK_POINT_ID')
+			->addSelect('ADDRESS', 'PICK_POINT_ADDRESS');
 
 		$query = $ob->getQuery();
 		$users = $ob->exec();
@@ -29,19 +30,12 @@ class PickPointController extends Controller
 		while ($itm = $users->fetch())
 		{
 			$result['result']['items'][] = [
-				'ID' => $itm['pick_point_ID_ALIAS'],
-				'ADDRESS' => $itm['pick_point_ADDRESS_ALIAS'],
+				'ID' => $itm['PICK_POINT_ID'],
+				'ADDRESS' => $itm['PICK_POINT_ADDRESS'],
 			];
 		}
 
-		$arQuery = [];
-		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
-		{
-			$arQuery = $_SESSION['dbQuery'];
-			unset($_SESSION['dbQuery']);
-		}
-		$arQuery[] = $query;
-		ViewManager::show('query', ['query' => $arQuery]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('table', $result);
 		ViewManager::show('footer');
 		return '';
@@ -63,7 +57,7 @@ class PickPointController extends Controller
 				],
 			],
 		];
-		ViewManager::show('query', ['query' => []]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');
@@ -108,7 +102,7 @@ class PickPointController extends Controller
 				]
 			],
 		];
-		ViewManager::show('query', ['query' => [$query]]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');

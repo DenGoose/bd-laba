@@ -1,6 +1,6 @@
 create table product
 (
-    ID         int          not null
+    ID         int          auto_increment
         primary key,
     NAME       varchar(255) null,
     SECTION_ID int          null,

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Controller;
+use App\DataBase\Tools;
 use App\Tables\UserTable;
 use App\ViewManager;
 
@@ -21,10 +22,10 @@ class UserController extends Controller
 
 		$ob = UserTable::query()
 			->addOrder('ID')
-			->addSelect('ID')
-			->addSelect('NAME')
-			->addSelect('SECOND_NAME')
-			->addSelect('LAST_NAME');
+			->addSelect('ID', 'USER_ID')
+			->addSelect('NAME', 'USER_NAME')
+			->addSelect('SECOND_NAME', 'USER_SECOND_NAME')
+			->addSelect('LAST_NAME', 'USER_LAST_NAME');
 
 		$query = $ob->getQuery(); // todo
 		$users = $ob->exec();
@@ -32,21 +33,14 @@ class UserController extends Controller
 		while ($itm = $users->fetch())
 		{
 			$result['result']['items'][] = [
-				'ID' => $itm['user_ID_ALIAS'],
-				'NAME' => $itm['user_NAME_ALIAS'],
-				'SECOND_NAME' => $itm['user_SECOND_NAME_ALIAS'],
-				'LAST_NAME' => $itm['user_LAST_NAME_ALIAS']
+				'ID' => $itm['USER_ID'],
+				'NAME' => $itm['USER_NAME'],
+				'SECOND_NAME' => $itm['USER_SECOND_NAME'],
+				'LAST_NAME' => $itm['USER_LAST_NAME']
 			];
 		}
 
-		$arQuery = [];
-		if (isset($_SESSION['dbQuery']) && $_SESSION['dbQuery'])
-		{
-			$arQuery = $_SESSION['dbQuery'];
-			unset($_SESSION['dbQuery']);
-		}
-		$arQuery[] = $query;
-		ViewManager::show('query', ['query' => $arQuery]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('table', $result);
 		ViewManager::show('footer');
 		return '';
@@ -82,7 +76,7 @@ class UserController extends Controller
 				],
 			],
 		];
-		ViewManager::show('query', ['query' => []]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');
@@ -145,7 +139,7 @@ class UserController extends Controller
 				]
 			],
 		];
-		ViewManager::show('query', ['query' => [$query]]);
+		ViewManager::show('query', ['query' => Tools::getQuery()]);
 		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');

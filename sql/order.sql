@@ -1,6 +1,6 @@
 create table `order`
 (
-    ID            int not null
+    ID            int auto_increment
         primary key,
     TOTAL_PRICE   int null,
     USER_ID       int null,
