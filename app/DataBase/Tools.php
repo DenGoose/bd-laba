@@ -55,20 +55,33 @@ class Tools
 		return $smt->fetch(\PDO::FETCH_ASSOC)['SUM'];
 	}
 
-	public static function deleteForManyToMany($table, $fieldId, $id): bool
+	public static function deleteForManyToMany($table, $filter): bool
 	{
-		$sql = "delete from `" . $table . "` where ${fieldId} = :id";
+		$sql = "delete from `" . $table . "` where ";
+		$props = [];
+		$sqlFilters = [];
+
+		foreach ($filter as $field => $value)
+		{
+			$key = ':' . md5(time() . $field);
+			$sqlFilters[] = "${field} = ${key}";
+			$props[$key] = $value;
+		}
+
+		$sql .= implode(' and ', $sqlFilters);
 
 		$db = DB::getInstance()->getConnection();
 
 		$stmt = $db->prepare($sql);
 
 		$tempSql = $sql;
-		$alias = ':id';
-		$field = $id;
-		$tempSql = str_replace($alias, $field, $tempSql);
+		foreach ($props as $alias => $val)
+		{
+			$tempSql = str_replace($alias, $val, $tempSql);
+		}
+
 		$_SESSION['dbQuery'][] = $tempSql;
 
-		return $stmt->execute([':id' => $id]);
+		return $stmt->execute($props);
 	}
 }

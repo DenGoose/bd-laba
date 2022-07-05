@@ -118,8 +118,12 @@ class SectionController extends Controller
 
 	public static function updateAction()
 	{
-		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
-		return '';
+		SectionTable::update($_POST['ID'], [
+			'NAME' => $_POST['NAME'],
+		]);
+
+		header('Location: /product-section/');
+		die();
 	}
 
 	public static function deleteAction()

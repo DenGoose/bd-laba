@@ -381,9 +381,12 @@ class OrderController extends Controller
 		return '';
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public static function deleteAction()
 	{
-		Tools::deleteForManyToMany(OrderTable::PRODUCT_ORDERS_TABLE, 'ORDER_ID', $_GET['id']);
+		Tools::deleteForManyToMany(OrderTable::PRODUCT_ORDERS_TABLE, ['ORDER_ID' => $_GET['id']]);
 		OrderTable::delete($_GET['id']);
 		header('Location: /order/');
 		die();

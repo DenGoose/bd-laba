@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Controller;
+use App\DataBase\ORM\Query;
 use App\DataBase\Tools;
 use App\Tables\ProductTable;
 use App\Tables\SectionTable;
@@ -335,16 +336,67 @@ class ProductController extends Controller
 		return '';
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public static function updateAction()
 	{
+		$ob = ProductTable::query()
+			->registerRuntimeField('PRODUCT_STOCK', [
+				'data_class' => ProductTable::PRODUCT_STOCK_TABLE,
+				'reference' => [
+					'this' => 'ID',
+					'ref' => 'PRODUCT_ID',
+				],
+				'join_type' => 'inner'
+			])
+			->where('ID', $_POST['ID'])
+			->addSelect('PRODUCT_STOCK.STOCK_ID', 'STOCK_ID')
+			->addSelect('PRICE', 'PRODUCT_PRICE');
+
+		$_SESSION['dbQuery'][] = $ob->getQuery();
+		$products = $ob->exec()->fetchAll();
+		$product = array_column($products, 'STOCK_ID');
+		$oldPrice = array_pop($products)['PRODUCT_PRICE'];
+
+		foreach ($product as $item)
+		{
+			if (!in_array($item, $_POST['STOCK']))
+			{
+				Tools::deleteForManyToMany(ProductTable::PRODUCT_STOCK_TABLE, [
+					'PRODUCT_ID' => $_POST['ID'],
+					'STOCK_ID' => $item
+				]);
+			}
+		}
+
+		foreach ($_POST['STOCK'] as $item)
+		{
+			if (!in_array($item, $product))
+			{
+				ProductTable::add([
+					'PRODUCT_ID' => $_POST['ID'],
+					'STOCK_ID' => $item
+				], ProductTable::PRODUCT_STOCK_TABLE);
+			}
+		}
+
 		// todo сделать переподсчёт суммы у заказов
-		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
-		return '';
+		ProductTable::update($_POST['ID'], [
+			'NAME' => $_POST['NAME'],
+			'SECTION_ID' => $_POST['SECTION'],
+			'PRICE' => $_POST['PRICE']
+		]);
+
+		ProductTable::recalculateOrders($oldPrice, $_POST['PRICE'], $_POST['ID']);
+
+		header('Location: /product/');
+		die();
 	}
 
 	public static function deleteAction()
 	{
-		Tools::deleteForManyToMany(ProductTable::PRODUCT_STOCK_TABLE, 'PRODUCT_ID', $_GET['id']);
+		Tools::deleteForManyToMany(ProductTable::PRODUCT_STOCK_TABLE, ['PRODUCT_ID' => $_GET['id']]);
 		ProductTable::delete($_GET['id']);
 		header('Location: /product/');
 		die();
