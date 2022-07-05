@@ -129,6 +129,8 @@ class UserController extends Controller
 
 	public static function deleteAction()
 	{
-
+		UserTable::delete($_GET['id']);
+		header('Location: /user/');
+		die();
 	}
 }

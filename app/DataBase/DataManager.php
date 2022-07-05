@@ -112,6 +112,20 @@ abstract class DataManager
 			throw new Exception("Empty parameters");
 		}
 
-		//TODO delete
+
+		$sql = 'delete from `' . static::getTableName() . '` where ID = :id';
+
+
+		$db = DB::getInstance()->getConnection();
+
+		$stmt = $db->prepare($sql);
+
+		$tempSql = $sql;
+		$alias = ':id';
+		$field = $id;
+		$tempSql = str_replace($alias, $field, $tempSql);
+		$_SESSION['dbQuery'][] = $tempSql;
+
+		return $stmt->execute([':id' => $id]);
 	}
 }

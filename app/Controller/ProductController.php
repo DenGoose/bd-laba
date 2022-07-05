@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Controller;
+use App\DataBase\Tools;
 use App\Tables\ProductTable;
 use App\Tables\SectionTable;
 use App\Tables\StockTable;
@@ -215,6 +216,9 @@ class ProductController extends Controller
 
 	public static function deleteAction()
 	{
-
+		Tools::deleteForManyToMany(ProductTable::PRODUCT_STOCK_TABLE, 'PRODUCT_ID', $_GET['id']);
+		ProductTable::delete($_GET['id']);
+		header('Location: /product/');
+		die();
 	}
 }

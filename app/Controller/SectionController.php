@@ -95,6 +95,8 @@ class SectionController extends Controller
 
 	public static function deleteAction()
 	{
-
+		SectionTable::delete($_GET['id']);
+		header('Location: /product-section/');
+		die();
 	}
 }

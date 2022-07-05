@@ -105,6 +105,8 @@ class StockController extends Controller
 
 	public static function deleteAction()
 	{
-
+		StockTable::delete($_GET['id']);
+		header('Location: /stock/');
+		die();
 	}
 }

@@ -54,4 +54,21 @@ class Tools
 
 		return $smt->fetch(\PDO::FETCH_ASSOC)['SUM'];
 	}
+
+	public static function deleteForManyToMany($table, $fieldId, $id): bool
+	{
+		$sql = "delete from `" . $table . "` where ${fieldId} = :id";
+
+		$db = DB::getInstance()->getConnection();
+
+		$stmt = $db->prepare($sql);
+
+		$tempSql = $sql;
+		$alias = ':id';
+		$field = $id;
+		$tempSql = str_replace($alias, $field, $tempSql);
+		$_SESSION['dbQuery'][] = $tempSql;
+
+		return $stmt->execute([':id' => $id]);
+	}
 }

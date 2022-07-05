@@ -94,6 +94,8 @@ class PickPointController extends Controller
 
 	public static function deleteAction()
 	{
-
+		PickPointTable::delete($_GET['id']);
+		header('Location: /pick-point/');
+		die();
 	}
 }
