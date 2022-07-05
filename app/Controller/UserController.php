@@ -103,20 +103,46 @@ class UserController extends Controller
 
 	public static function update()
 	{
-		if (!isset($_GET['id']) || mb_strlen($_GET['id']))
-		{
-			header('Location: /user/add/');
-			die();
-		}
-
-		ViewManager::show('header', ['title' => 'Заказы']);
-
 		$ob = UserTable::query()
-			->addSelect('ID')
-			->where('ID', $_GET['id']);
+			->where('ID', $_GET['id'])
+			->addSelect('ID', 'USER_ID')
+			->addSelect('NAME', 'USER_NAME')
+			->addSelect('SECOND_NAME', 'USER_SECOND_NAME')
+			->addSelect('LAST_NAME', 'USER_LAST_NAME');
 
 		$query = $ob->getQuery();
-		$users = $ob->exec();
+		$user = $ob->exec()->fetch();
+
+		ViewManager::show('header', ['title' => 'Обновление покупателя №' . $user['USER_ID']]);
+
+		$result['result'] = [
+			'action' => '/user/update/',
+			'items' => [
+				[
+					'name' => 'Имя',
+					'code' => 'NAME',
+					'type' => 'text',
+					'value' => $user['USER_NAME'],
+					'list_values' => []
+				],
+				[
+					'name' => 'Фамилия',
+					'code' => 'SECOND_NAME',
+					'type' => 'text',
+					'value' => $user['USER_SECOND_NAME'],
+					'list_values' => []
+				],
+				[
+					'name' => 'Отчество',
+					'code' => 'LAST_NAME',
+					'type' => 'text',
+					'value' => $user['USER_LAST_NAME'],
+					'list_values' => []
+				],
+			],
+		];
+		ViewManager::show('query', ['query' => [$query]]);
+		ViewManager::show('record', $result);
 
 		ViewManager::show('footer');
 		return '';
@@ -124,7 +150,8 @@ class UserController extends Controller
 
 	public static function updateAction()
 	{
-
+		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
+		return '';
 	}
 
 	public static function deleteAction()
