@@ -33,7 +33,7 @@ class OrderController extends Controller
 					'this' => 'USER_ID',
 					'ref' => 'ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->registerRuntimeField('PICK_POINT', [
 				'data_class' => PickPointTable::class,
@@ -41,7 +41,7 @@ class OrderController extends Controller
 					'this' => 'PICK_POINT_ID',
 					'ref' => 'ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->registerRuntimeField('PRODUCT_ORDERS', [
 				'data_class' => OrderTable::PRODUCT_ORDERS_TABLE,
@@ -49,7 +49,7 @@ class OrderController extends Controller
 					'this' => 'ID',
 					'ref' => 'ORDER_ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->registerRuntimeField('PRODUCT', [
 				'data_class' => ProductTable::class,
@@ -57,7 +57,7 @@ class OrderController extends Controller
 					'this' => 'PRODUCT_ORDERS.PRODUCT_ID',
 					'ref' => 'ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->addSelect('order.ID', 'ORDER_ID')
 			->addSelect('order.TOTAL_PRICE', 'ORDER_TOTAL_PRICE')
@@ -236,7 +236,7 @@ class OrderController extends Controller
 					'this' => 'USER_ID',
 					'ref' => 'ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->registerRuntimeField('PICK_POINT', [
 				'data_class' => PickPointTable::class,
@@ -244,7 +244,7 @@ class OrderController extends Controller
 					'this' => 'PICK_POINT_ID',
 					'ref' => 'ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->registerRuntimeField('PRODUCT_ORDERS', [
 				'data_class' => OrderTable::PRODUCT_ORDERS_TABLE,
@@ -252,7 +252,7 @@ class OrderController extends Controller
 					'this' => 'ID',
 					'ref' => 'ORDER_ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->registerRuntimeField('PRODUCT', [
 				'data_class' => ProductTable::class,
@@ -260,7 +260,7 @@ class OrderController extends Controller
 					'this' => 'PRODUCT_ORDERS.PRODUCT_ID',
 					'ref' => 'ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->where('ID', $_GET['id'])
 			->addSelect('order.ID', 'ORDER_ID')
@@ -349,21 +349,21 @@ class OrderController extends Controller
 					'name' => 'Покупатель',
 					'code' => 'USER',
 					'type' => 'list',
-					'value' => $result['USER_ID'],
+					'value' => $result['USER_ID'] ?? '',
 					'list_values' => $users
 				],
 				[
 					'name' => 'Пункт выдачи',
 					'code' => 'PICK_POINT',
 					'type' => 'list',
-					'value' => $result['PICK_POINT_ID'],
+					'value' => $result['PICK_POINT_ID'] ?? '',
 					'list_values' => $pickPoints
 				],
 				[
 					'name' => 'Товары',
 					'code' => 'PRODUCT',
 					'type' => 'multiple_list',
-					'value' => $result['PRODUCT_ID'],
+					'value' => $result['PRODUCT_ID'] ?? [],
 					'list_values' => $products
 				],
 				[

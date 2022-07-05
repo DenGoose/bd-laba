@@ -30,7 +30,7 @@ class ProductController extends Controller
 					'this' => 'SECTION_ID',
 					'ref' => 'ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->registerRuntimeField('PRODUCT_STOCK', [
 				'data_class' => ProductTable::PRODUCT_STOCK_TABLE,
@@ -38,7 +38,7 @@ class ProductController extends Controller
 					'this' => 'ID',
 					'ref' => 'PRODUCT_ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->registerRuntimeField('STOCK', [
 				'data_class' => StockTable::class,
@@ -46,7 +46,7 @@ class ProductController extends Controller
 					'this' => 'PRODUCT_STOCK.STOCK_ID',
 					'ref' => 'ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->addOrder('ID')
 			->addSelect('product.ID', 'PRODUCT_ID')
@@ -71,7 +71,7 @@ class ProductController extends Controller
 					'PRODUCT_PRICE' => $itm['PRODUCT_PRICE']
 				];
 			}
-			$stocks[$itm['PRODUCT_ID']]['STOCKS'][] = 'г. ' . $itm['STOCK_CITY'] . ' ' . $itm['STOCK_ADDRESS'];
+			$stocks[$itm['PRODUCT_ID']]['STOCKS'][] = ($itm['STOCK_CITY'] && $itm['STOCK_ADDRESS']) ? 'г. ' . $itm['STOCK_CITY'] . ' ' . $itm['STOCK_ADDRESS'] : '';
 		}
 
 		foreach ($stocks as $stock)
@@ -212,7 +212,7 @@ class ProductController extends Controller
 					'this' => 'SECTION_ID',
 					'ref' => 'ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->registerRuntimeField('PRODUCT_STOCK', [
 				'data_class' => ProductTable::PRODUCT_STOCK_TABLE,
@@ -220,7 +220,7 @@ class ProductController extends Controller
 					'this' => 'ID',
 					'ref' => 'PRODUCT_ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->registerRuntimeField('STOCK', [
 				'data_class' => StockTable::class,
@@ -228,7 +228,7 @@ class ProductController extends Controller
 					'this' => 'PRODUCT_STOCK.STOCK_ID',
 					'ref' => 'ID',
 				],
-				'join_type' => 'inner'
+				'join_type' => 'left'
 			])
 			->where('ID', $_GET['id'])
 			->addSelect('product.ID', 'PRODUCT_ID')
@@ -306,7 +306,7 @@ class ProductController extends Controller
 					'name' => 'Категория',
 					'code' => 'SECTION',
 					'type' => 'list',
-					'value' => $result['SECTION_ID'],
+					'value' => $result['SECTION_ID'] ?? '',
 					'list_values' => $sections
 				],
 				[
@@ -320,7 +320,7 @@ class ProductController extends Controller
 					'name' => 'Склады',
 					'code' => 'STOCK',
 					'type' => 'multiple_list',
-					'value' => $result['STOCKS'],
+					'value' => $result['STOCKS'] ?? [],
 					'list_values' => $stocks
 				],
 				[
@@ -395,8 +395,16 @@ class ProductController extends Controller
 
 	public static function deleteAction()
 	{
-		Tools::deleteForManyToMany(ProductTable::PRODUCT_STOCK_TABLE, ['PRODUCT_ID' => $_GET['id']]);
+		$ob = ProductTable::query()
+			->where('ID', $_GET['id'])
+			->addSelect('PRICE', 'PRODUCT_PRICE');
+
+		$_SESSION['dbQuery'][] = $ob->getQuery();
+		$price = $ob->exec()->fetch()['PRODUCT_PRICE'];
+
 		ProductTable::delete($_GET['id']);
+		ProductTable::recalculateOrders($price, 0, $_GET['id']);
+		Tools::deleteForManyToMany(ProductTable::PRODUCT_STOCK_TABLE, ['PRODUCT_ID' => $_GET['id']]);
 		header('Location: /product/');
 		die();
 	}
