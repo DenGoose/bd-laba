@@ -139,6 +139,10 @@ class UserController extends Controller
 					'value' => $user['USER_LAST_NAME'],
 					'list_values' => []
 				],
+				[
+					'code' => 'ID',
+					'value' => $user['SECTION_ID']
+				]
 			],
 		];
 		ViewManager::show('query', ['query' => [$query]]);

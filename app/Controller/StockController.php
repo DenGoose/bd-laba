@@ -121,6 +121,10 @@ class StockController extends Controller
 					'value' => $stock['STOCK_ADDRESS'],
 					'list_values' => []
 				],
+				[
+					'code' => 'ID',
+					'value' => $stock['SECTION_ID']
+				]
 			],
 		];
 		ViewManager::show('query', ['query' => [$query]]);
