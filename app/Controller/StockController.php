@@ -93,14 +93,47 @@ class StockController extends Controller
 
 	public static function update()
 	{
-		ViewManager::show('header', ['title' => 'Заказы']);
+		$ob = StockTable::query()
+			->where('ID', $_GET['id'])
+			->addSelect('ID', 'STOCK_ID')
+			->addSelect('CITY', 'STOCK_CITY')
+			->addSelect('ADDRESS', 'STOCK_ADDRESS');
+
+		$query = $ob->getQuery();
+		$stock = $ob->exec()->fetch();
+
+		ViewManager::show('header', ['title' => 'Обновление склада №' . $stock['STOCK_ID']]);
+
+		$result['result'] = [
+			'action' => '/stock/update/',
+			'items' => [
+				[
+					'name' => 'Город',
+					'code' => 'CITY',
+					'type' => 'text',
+					'value' => $stock['STOCK_CITY'],
+					'list_values' => []
+				],
+				[
+					'name' => 'Адрес',
+					'code' => 'ADDRESS',
+					'type' => 'text',
+					'value' => $stock['STOCK_ADDRESS'],
+					'list_values' => []
+				],
+			],
+		];
+		ViewManager::show('query', ['query' => [$query]]);
+		ViewManager::show('record', $result);
+
 		ViewManager::show('footer');
 		return '';
 	}
 
 	public static function updateAction()
 	{
-
+		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
+		return '';
 	}
 
 	public static function deleteAction()
