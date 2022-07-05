@@ -117,8 +117,12 @@ class PickPointController extends Controller
 
 	public static function updateAction()
 	{
-		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
-		return '';
+		PickPointTable::update($_POST['ID'], [
+			'ADDRESS' => $_POST['ADDRESS'],
+		]);
+
+		header('Location: /pick-point/');
+		die();
 	}
 
 	public static function deleteAction()
