@@ -20,6 +20,7 @@ class UserController extends Controller
 		];
 
 		$ob = UserTable::query()
+			->addOrder('ID')
 			->addSelect('ID')
 			->addSelect('NAME')
 			->addSelect('SECOND_NAME')
@@ -90,12 +91,14 @@ class UserController extends Controller
 
 	public static function addAction()
 	{
-//		Array
-//		(
-//			[NAME] => sfdsf
-//			[SECOND_NAME] => sdfsdf
-//	[LAST_NAME] => sdfsdf
-//)
+		$productId = UserTable::add([
+			'NAME' => $_POST['NAME'],
+			'SECOND_NAME' => $_POST['SECOND_NAME'],
+			'LAST_NAME' => $_POST['LAST_NAME']
+		]);
+
+		header('Location: /user/');
+		die();
 	}
 
 	public static function update()
