@@ -136,8 +136,13 @@ class StockController extends Controller
 
 	public static function updateAction()
 	{
-		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
-		return '';
+		StockTable::update($_POST['ID'], [
+			'CITY' => $_POST['CITY'],
+			'ADDRESS' => $_POST['ADDRESS'],
+		]);
+
+		header('Location: /stock/');
+		die();
 	}
 
 	public static function deleteAction()
