@@ -21,6 +21,7 @@ class SectionController extends Controller
 		];
 
 		$ob = SectionTable::query()
+			->addOrder('ID')
 			->addSelect('ID')
 			->addSelect('NAME');
 
@@ -72,7 +73,12 @@ class SectionController extends Controller
 
 	public static function addAction()
 	{
+		$productId = SectionTable::add([
+			'NAME' => $_POST['NAME']
+		]);
 
+		header('Location: /product-section/');
+		die();
 	}
 
 	public static function update()
