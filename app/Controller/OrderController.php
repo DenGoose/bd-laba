@@ -3,8 +3,7 @@
 namespace App\Controller;
 
 use App\Controller;
-use App\DataBase\DB;
-use App\DataBase\ORM\Query;
+use App\DataBase\Tools;
 use App\Tables\OrderTable;
 use App\Tables\PickPointTable;
 use App\Tables\ProductTable;
@@ -207,22 +206,7 @@ class OrderController extends Controller
 			die();
 		}
 
-		$sql = 'select sum(PRICE) as SUM from product where ID in (';
-		$prepare = [];
-		foreach ($_POST['PRODUCT'] as $item)
-		{
-			$alias = ':' . md5(time() + $item);
-			$prepare[$alias] = $item;
-		}
-
-		$sql .= implode(', ', array_keys($prepare)) . ')';
-
-		$_SESSION['dbQuery'][] = 'select sum(PRICE) as SUM from product where ID in ('. implode(', ', $prepare) . ')';
-
-		$smt = DB::getInstance()->getConnection()->prepare($sql);
-		$smt->execute($prepare);
-
-		$sum = $smt->fetch(\PDO::FETCH_ASSOC)['SUM'];
+		$sum = Tools::getSum(ProductTable::getTableName(), 'PRICE', $_POST['PRODUCT']);
 
 		$orderId = OrderTable::add([
 			'USER_ID' => $_POST['USER'],

@@ -34,4 +34,24 @@ class Tools
 
 		return $result ?? [];
 	}
+
+	public static function getSum($table, $field, $ids)
+	{
+		$sql = "select sum(${field}) as SUM from ${table} where ID in (";
+		$prepare = [];
+		foreach ($ids as $item)
+		{
+			$alias = ':' . md5(time() + $item);
+			$prepare[$alias] = $item;
+		}
+
+		$sql .= implode(', ', array_keys($prepare)) . ')';
+
+		$_SESSION['dbQuery'][] = 'select sum(${field}) as SUM from ${table} where ID in ('. implode(', ', $prepare) . ')';
+
+		$smt = DB::getInstance()->getConnection()->prepare($sql);
+		$smt->execute($prepare);
+
+		return $smt->fetch(\PDO::FETCH_ASSOC)['SUM'];
+	}
 }
