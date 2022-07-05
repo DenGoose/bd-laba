@@ -72,7 +72,12 @@ class PickPointController extends Controller
 
 	public static function addAction()
 	{
+		$productId = PickPointTable::add([
+			'ADDRESS' => $_POST['ADDRESS']
+		]);
 
+		header('Location: /pick-point/');
+		die();
 	}
 
 	public static function update()
