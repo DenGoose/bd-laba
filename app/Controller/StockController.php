@@ -20,6 +20,7 @@ class StockController extends Controller
 		];
 
 		$ob = StockTable::query()
+			->addOrder('ID')
 			->addSelect('ID')
 			->addSelect('CITY')
 			->addSelect('ADDRESS');
@@ -81,7 +82,13 @@ class StockController extends Controller
 
 	public static function addAction()
 	{
+		$productId = StockTable::add([
+			'CITY' => $_POST['CITY'],
+			'ADDRESS' => $_POST['ADDRESS']
+		]);
 
+		header('Location: /stock/');
+		die();
 	}
 
 	public static function update()
