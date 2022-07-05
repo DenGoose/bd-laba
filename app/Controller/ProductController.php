@@ -204,14 +204,133 @@ class ProductController extends Controller
 
 	public static function update()
 	{
-		ViewManager::show('header', ['title' => 'Заказы']);
+		$ob = ProductTable::query()
+			->registerRuntimeField('SECTION', [
+				'data_class' => SectionTable::class,
+				'reference' => [
+					'this' => 'SECTION_ID',
+					'ref' => 'ID',
+				],
+				'join_type' => 'inner'
+			])
+			->registerRuntimeField('PRODUCT_STOCK', [
+				'data_class' => ProductTable::PRODUCT_STOCK_TABLE,
+				'reference' => [
+					'this' => 'ID',
+					'ref' => 'PRODUCT_ID',
+				],
+				'join_type' => 'inner'
+			])
+			->registerRuntimeField('STOCK', [
+				'data_class' => StockTable::class,
+				'reference' => [
+					'this' => 'PRODUCT_STOCK.STOCK_ID',
+					'ref' => 'ID',
+				],
+				'join_type' => 'inner'
+			])
+			->where('ID', $_GET['id'])
+			->addSelect('product.ID', 'PRODUCT_ID')
+			->addSelect('product.NAME', 'PRODUCT_NAME')
+			->addSelect('SECTION.ID', 'SECTION_ID')
+			->addSelect('STOCK.ID', 'STOCK_ID');
+
+		$query = [];
+		$query[] = $ob->getQuery();
+		$users = $ob->exec();
+		$result = [];
+
+		while ($itm = $users->fetch())
+		{
+			if (!isset($result['PRODUCT_ID']))
+			{
+				$result = [
+					'PRODUCT_ID' => $itm['PRODUCT_ID'],
+					'PRODUCT_NAME' => $itm['PRODUCT_NAME'],
+					'SECTION_ID' => $itm['SECTION_ID'],
+				];
+			}
+			$result['STOCKS'][] = $itm['STOCK_ID'];
+		}
+
+		ViewManager::show('header', ['title' => 'Обновление товара №' . $result['PRODUCT_ID']]);
+
+		$ob = SectionTable::query()
+			->addSelect('ID', 'SECTION_ID')
+			->addSelect('NAME', 'SECTION_NAME');
+
+		$query[] = $ob->getQuery();
+		$sectionObj = $ob->exec();
+		$sections = [];
+
+		while ($itm = $sectionObj->fetch())
+		{
+			$sections[] = [
+				'id' => $itm['SECTION_ID'],
+				'name' => $itm['SECTION_NAME']
+			];
+		}
+
+		$ob = StockTable::query()
+			->addSelect('ID', 'STOCK_ID')
+			->addSelect('CITY', 'STOCK_CITY')
+			->addSelect('ADDRESS', 'STOCK_ADDRESS');
+
+		$query[] = $ob->getQuery();
+		$stocksObj = $ob->exec();
+		$stocks = [];
+
+
+		while ($itm = $stocksObj->fetch())
+		{
+			$stocks[] = [
+				'id' => $itm['STOCK_ID'],
+				'name' => 'г. ' . $itm['STOCK_CITY'] . ' ' . $itm['STOCK_ADDRESS']
+			];
+		}
+
+		$result['result'] = [
+			'action' => '/product/update/',
+			'items' => [
+				[
+					'name' => 'Название',
+					'code' => 'NAME',
+					'type' => 'text',
+					'value' => $result['PRODUCT_NAME'],
+					'list_values' => []
+				],
+				[
+					'name' => 'Категория',
+					'code' => 'SECTION',
+					'type' => 'list',
+					'value' => $result['SECTION_ID'],
+					'list_values' => $sections
+				],
+				[
+					'name' => 'Склады',
+					'code' => 'STOCK',
+					'type' => 'multiple_list',
+					'value' => $result['STOCKS'],
+					'list_values' => $stocks
+				],
+				[
+					'code' => 'ID',
+					'value' => $result['PRODUCT_ID']
+				]
+			],
+		];
+		ViewManager::show('query', ['query' => $query]);
+		ViewManager::show('record', $result);
+
 		ViewManager::show('footer');
 		return '';
 	}
 
 	public static function updateAction()
 	{
-
+		// todo сделать переподсчёт суммы
+		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
+		return '';
 	}
 
 	public static function deleteAction()

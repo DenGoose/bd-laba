@@ -14,7 +14,7 @@
             <p><?=$item['name']?></p>
                 <?php foreach ($item['list_values'] as $list):?>
                 <div class="mb-3 form-check">
-                    <input <?=(isset($item['value']) && $item['value'] == $list['id']) ? 'checked' : ''?> name="<?=$item['code']?>[]" value="<?=$list['id']?>" type="checkbox" class="form-check-input" id="input<?=$item['code']?>-<?=$list['id']?>">
+                    <input <?=(in_array($list['id'], $item['value'])) ? 'checked' : ''?> name="<?=$item['code']?>[]" value="<?=$list['id']?>" type="checkbox" class="form-check-input" id="input<?=$item['code']?>-<?=$list['id']?>">
                     <label class="form-check-label" for="input<?=$item['code']?>-<?=$list['id']?>"><?=$list['name']?></label>
                 </div>
                 <?php endforeach;?>
