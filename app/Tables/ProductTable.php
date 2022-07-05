@@ -32,8 +32,6 @@ class ProductTable extends \App\DataBase\DataManager
 
 		$orders = $ob->exec();
 
-		$result = [];
-
 		while ($itm = $orders->fetch())
 		{
 			OrderTable::update($itm['ORDER_ID'], ['TOTAL_PRICE' => $itm['ORDER_TOTAL_PRICE'] - $diffPrice]);
