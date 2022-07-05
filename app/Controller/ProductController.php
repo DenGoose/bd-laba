@@ -46,6 +46,7 @@ class ProductController extends Controller
 				],
 				'join_type' => 'inner'
 			])
+			->addOrder('ID')
 			->addSelect('product.ID', 'PRODUCT_ID')
 			->addSelect('product.NAME', 'PRODUCT_NAME')
 			->addSelect('SECTION.NAME', 'SECTION_NAME')
@@ -176,7 +177,28 @@ class ProductController extends Controller
 
 	public static function addAction()
 	{
+		if (!$_POST['STOCK'])
+		{
+			header('Location: /product/');
+			die();
+		}
 
+		$productId = ProductTable::add([
+			'NAME' => $_POST['NAME'],
+			'SECTION_ID' => $_POST['SECTION'],
+			'PRICE' => $_POST['PRICE']
+		]);
+
+		foreach ($_POST['STOCK'] as $item)
+		{
+			ProductTable::add([
+				'PRODUCT_ID' => $productId,
+				'STOCK_ID' => $item
+			], ProductTable::PRODUCT_STOCK_TABLE);
+		}
+
+		header('Location: /product/');
+		die();
 	}
 
 	public static function update()
