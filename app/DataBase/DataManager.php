@@ -35,11 +35,16 @@ abstract class DataManager
 	 * @return int
 	 * @throws Exception
 	 */
-	public static function add($params): int
+	public static function add($params, $table = ''): int
 	{
 		if (!$params)
 		{
 			throw new Exception("Empty parameters");
+		}
+
+		if (!mb_strlen($table))
+		{
+			$table = static::getTableName();
 		}
 
 		$fields = [];
@@ -48,7 +53,7 @@ abstract class DataManager
 			return !(mb_strtolower($itm) == 'id');
 		});
 
-		$sql = "insert into " . static::getTableName() . " (" . implode(', ', $columns) . ") values (";
+		$sql = "insert into `" . $table . "` (" . implode(', ', $columns) . ") values (";
 
 		$lastItm = array_pop($columns);
 
@@ -64,6 +69,13 @@ abstract class DataManager
 		}
 
 		$sql .= ")";
+
+		$tempSql = $sql;
+		foreach ($fields as $alias => $field)
+		{
+			$tempSql = str_replace($alias, $field, $tempSql);
+		}
+		$_SESSION['dbQuery'][] = $tempSql;
 
 		$db = DB::getInstance()->getConnection();
 
