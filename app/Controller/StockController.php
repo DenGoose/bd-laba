@@ -123,7 +123,7 @@ class StockController extends Controller
 				],
 				[
 					'code' => 'ID',
-					'value' => $stock['SECTION_ID']
+					'value' => $stock['STOCK_ID']
 				]
 			],
 		];

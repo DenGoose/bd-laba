@@ -141,7 +141,7 @@ class UserController extends Controller
 				],
 				[
 					'code' => 'ID',
-					'value' => $user['SECTION_ID']
+					'value' => $user['USER_ID']
 				]
 			],
 		];
