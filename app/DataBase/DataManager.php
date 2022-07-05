@@ -99,7 +99,7 @@ abstract class DataManager
 			throw new Exception("Empty parameters");
 		}
 
-		$sql = "update " . static::getTableName() . " set ";
+		$sql = "update `" . static::getTableName() . "` set ";
 		$prepare = [];
 
 		$countSelect = count($params);
@@ -121,6 +121,8 @@ abstract class DataManager
 
 		$sql .= " where id = :id";
 		$prepare[":id"] = $id;
+
+		$_SESSION['dbQuery'][] = $sql;
 
 		$ob = DB::getInstance()->getConnection()->prepare($sql);
 

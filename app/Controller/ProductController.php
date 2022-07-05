@@ -381,7 +381,6 @@ class ProductController extends Controller
 			}
 		}
 
-		// todo сделать переподсчёт суммы у заказов
 		ProductTable::update($_POST['ID'], [
 			'NAME' => $_POST['NAME'],
 			'SECTION_ID' => $_POST['SECTION'],

@@ -151,7 +151,8 @@ class OrderController extends Controller
 
 		$ob = ProductTable::query()
 			->addSelect('ID', 'PRODUCT_ID')
-			->addSelect('NAME', 'PRODUCT_NAME');
+			->addSelect('NAME', 'PRODUCT_NAME')
+			->addOrder('ID');
 
 		$query[] = $ob->getQuery();
 		$productsObj = $ob->exec();
@@ -267,7 +268,8 @@ class OrderController extends Controller
 			->addSelect('USER.SECOND_NAME', 'USER_SECOND_NAME')
 			->addSelect('USER.ID', 'USER_ID')
 			->addSelect('PICK_POINT.ID', 'PICK_POINT_ID')
-			->addSelect('PRODUCT.ID', 'PRODUCT_ID');
+			->addSelect('PRODUCT.ID', 'PRODUCT_ID')
+			->addOrder('PRODUCT.ID');
 
 		$query = [];
 		$query[] = $ob->getQuery();
@@ -364,6 +366,10 @@ class OrderController extends Controller
 					'value' => $result['PRODUCT_ID'],
 					'list_values' => $products
 				],
+				[
+					'code' => 'ID',
+					'value' => $result['ORDER_ID']
+				]
 			],
 		];
 		ViewManager::show('query', ['query' => $query]);
@@ -375,10 +381,60 @@ class OrderController extends Controller
 
 	public static function updateAction()
 	{
-		// todo удалить колонку с суммой заказа, считать на лету (пока что костыль)
-		// todo сделать переподсчёт суммы
-		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
-		return '';
+		$ob = OrderTable::query()
+			->registerRuntimeField('PRODUCT_ORDERS', [
+				'data_class' => OrderTable::PRODUCT_ORDERS_TABLE,
+				'reference' => [
+					'this' => 'ID',
+					'ref' => 'ORDER_ID',
+				],
+				'join_type' => 'inner'
+			])
+			->where('ID', $_POST['ID'])
+			->addSelect('PRODUCT_ORDERS.PRODUCT_ID', 'PRODUCT_ID');
+
+		$_SESSION['dbQuery'][] = $ob->getQuery();
+		$order = array_column($ob->exec()->fetchAll(), 'PRODUCT_ID');
+		$resultIds = [];
+
+		foreach ($order as $item)
+		{
+			if (!in_array($item, $_POST['PRODUCT']))
+			{
+				Tools::deleteForManyToMany(OrderTable::PRODUCT_ORDERS_TABLE, [
+					'ORDER_ID' => $_POST['ID'],
+					'PRODUCT_ID' => $item
+				]);
+			}
+			else
+			{
+				$resultIds[] = $item;
+			}
+		}
+
+		foreach ($_POST['PRODUCT'] as $item)
+		{
+			if (!in_array($item, $order))
+			{
+				OrderTable::add([
+					'ORDER_ID' => $_POST['ID'],
+					'PRODUCT_ID' => $item
+				], OrderTable::PRODUCT_ORDERS_TABLE);
+
+				$resultIds[] = $item;
+			}
+		}
+
+		$sum = Tools::getSum(ProductTable::getTableName(), 'PRICE', $resultIds); // todo удалить колонку с суммой заказа, считать на лету (пока что костыль)
+
+		OrderTable::update($_POST['ID'], [
+			'USER_ID' => $_POST['USER'],
+			'PICK_POINT_ID' => $_POST['PICK_POINT'],
+			'TOTAL_PRICE' => $sum
+		]);
+
+		header('Location: /order/');
+		die();
 	}
 
 	/**
