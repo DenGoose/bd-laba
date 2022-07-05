@@ -82,14 +82,43 @@ class PickPointController extends Controller
 
 	public static function update()
 	{
-		ViewManager::show('header', ['title' => 'Заказы']);
+		$ob = PickPointTable::query()
+			->where('ID', $_GET['id'])
+			->addSelect('ID', 'PICK_POINT_ID')
+			->addSelect('ADDRESS', 'PICK_POINT_ADDRESS');
+
+		$query = $ob->getQuery();
+		$stock = $ob->exec()->fetch();
+
+		ViewManager::show('header', ['title' => 'Обновление пункта выдачи №' . $stock['PICK_POINT_ID']]);
+
+		$result['result'] = [
+			'action' => '/pick-point/update/',
+			'items' => [
+				[
+					'name' => 'Адрес',
+					'code' => 'ADDRESS',
+					'type' => 'text',
+					'value' => $stock['PICK_POINT_ADDRESS'],
+					'list_values' => []
+				],
+				[
+					'code' => 'ID',
+					'value' => $stock['PICK_POINT_ID']
+				]
+			],
+		];
+		ViewManager::show('query', ['query' => [$query]]);
+		ViewManager::show('record', $result);
+
 		ViewManager::show('footer');
 		return '';
 	}
 
 	public static function updateAction()
 	{
-
+		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
+		return '';
 	}
 
 	public static function deleteAction()
