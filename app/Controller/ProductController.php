@@ -156,7 +156,7 @@ class ProductController extends Controller
 				[
 					'name' => 'Цена',
 					'code' => 'PRICE',
-					'type' => 'text',
+					'type' => 'int',
 					'value' => '',
 					'list_values' => []
 				],
@@ -164,7 +164,7 @@ class ProductController extends Controller
 					'name' => 'Склады',
 					'code' => 'STOCK',
 					'type' => 'multiple_list',
-					'value' => '',
+					'value' => [],
 					'list_values' => $stocks
 				],
 			],
@@ -232,6 +232,7 @@ class ProductController extends Controller
 			->where('ID', $_GET['id'])
 			->addSelect('product.ID', 'PRODUCT_ID')
 			->addSelect('product.NAME', 'PRODUCT_NAME')
+			->addSelect('product.PRICE', 'PRODUCT_PRICE')
 			->addSelect('SECTION.ID', 'SECTION_ID')
 			->addSelect('STOCK.ID', 'STOCK_ID');
 
@@ -248,6 +249,7 @@ class ProductController extends Controller
 					'PRODUCT_ID' => $itm['PRODUCT_ID'],
 					'PRODUCT_NAME' => $itm['PRODUCT_NAME'],
 					'SECTION_ID' => $itm['SECTION_ID'],
+					'PRODUCT_PRICE' => $itm['PRODUCT_PRICE']
 				];
 			}
 			$result['STOCKS'][] = $itm['STOCK_ID'];
@@ -307,6 +309,13 @@ class ProductController extends Controller
 					'list_values' => $sections
 				],
 				[
+					'name' => 'Цена',
+					'code' => 'PRICE',
+					'type' => 'int',
+					'value' => $result['PRODUCT_PRICE'],
+					'list_values' => []
+				],
+				[
 					'name' => 'Склады',
 					'code' => 'STOCK',
 					'type' => 'multiple_list',
@@ -328,7 +337,7 @@ class ProductController extends Controller
 
 	public static function updateAction()
 	{
-		// todo сделать переподсчёт суммы
+		// todo сделать переподсчёт суммы у заказов
 		echo '<pre>' . __FILE__ . ':' . __LINE__ . ':<br>' . print_r($_POST, true) . '</pre>';
 		return '';
 	}
