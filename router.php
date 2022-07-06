@@ -45,16 +45,4 @@ $router->get('/product-section/update/', [\App\Controller\SectionController::cla
 $router->post('/product-section/update/', [\App\Controller\SectionController::class, 'updateAction']);
 $router->get('/product-section/delete/', [\App\Controller\SectionController::class, 'deleteAction']);
 
-try
-{
-	$router->run();
-} catch (\Throwable $e)
-{
-	echo "<pre>";
-	var_dump([
-		'msg' => $e->getMessage(),
-		'file' => $e->getFile() . ':' . $e->getLine(),
-		'trace' => $e->getTraceAsString()
-	]);
-	echo "</pre>";
-}
+$router->run();
