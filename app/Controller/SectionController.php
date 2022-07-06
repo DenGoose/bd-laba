@@ -14,31 +14,37 @@ class SectionController extends Controller
 	{
 		ViewManager::show('header', ['title' => 'Категории товаров']);
 
-		$result['currentUrl'] = $_SERVER['REQUEST_URI'];
-		$result['result'] = [
-			'columns' => [
-				'ID', 'Название категории',
-			]
-		];
-
-		$ob = SectionTable::query()
-			->addOrder('ID')
-			->addSelect('ID', 'SECTION_ID')
-			->addSelect('NAME', 'SECTION_NAME');
-
-		$query = $ob->getQuery();
-		$users = $ob->exec();
-
-		while ($itm = $users->fetch())
+		try
 		{
-			$result['result']['items'][] = [
-				'ID' => $itm['SECTION_ID'],
-				'NAME' => $itm['SECTION_NAME'],
+			$result['currentUrl'] = $_SERVER['REQUEST_URI'];
+			$result['result'] = [
+				'columns' => [
+					'ID', 'Название категории',
+				]
 			];
+
+			$ob = SectionTable::query()
+				->addOrder('ID')
+				->addSelect('ID', 'SECTION_ID')
+				->addSelect('NAME', 'SECTION_NAME');
+
+			$query = $ob->getQuery();
+			$users = $ob->exec();
+
+			while ($itm = $users->fetch())
+			{
+				$result['result']['items'][] = [
+					'ID' => $itm['SECTION_ID'],
+					'NAME' => $itm['SECTION_NAME'],
+				];
+			}
+		}catch (\Throwable $e)
+		{
+			$_SESSION['alert'][] = $e->getMessage();
 		}
 
 		ViewManager::show('query', ['query' => Tools::getQuery()]);
-		ViewManager::show('table', $result);
+		ViewManager::show('table', $result ?? []);
 		ViewManager::show('footer');
 		return '';
 	}
@@ -67,9 +73,15 @@ class SectionController extends Controller
 
 	public static function addAction()
 	{
-		$productId = SectionTable::add([
-			'NAME' => $_POST['NAME']
-		]);
+		try
+		{
+			SectionTable::add([
+				'NAME' => $_POST['NAME']
+			]);
+		}catch (\Throwable $e)
+		{
+			$_SESSION['alert'][] = $e->getMessage();
+		}
 
 		header('Location: /product-section/');
 		die();
@@ -77,34 +89,40 @@ class SectionController extends Controller
 
 	public static function update()
 	{
-		$ob = SectionTable::query()
-			->where('ID', $_GET['id'])
-			->addSelect('ID', 'SECTION_ID')
-			->addSelect('NAME', 'SECTION_NAME');
+		try
+		{
+			$ob = SectionTable::query()
+				->where('ID', $_GET['id'])
+				->addSelect('ID', 'SECTION_ID')
+				->addSelect('NAME', 'SECTION_NAME');
 
-		$query = $ob->getQuery();
-		$section = $ob->exec()->fetch();
+			$query = $ob->getQuery();
+			$section = $ob->exec()->fetch();
 
+			$result['result'] = [
+				'action' => '/product-section/update/',
+				'items' => [
+					[
+						'name' => 'Название категории',
+						'code' => 'NAME',
+						'type' => 'text',
+						'value' => $section['SECTION_NAME'],
+						'list_values' => []
+					],
+					[
+						'code' => 'ID',
+						'value' => $section['SECTION_ID']
+					]
+				],
+			];
+		}catch (\Throwable $e)
+		{
+			$_SESSION['alert'][] = $e->getMessage();
+		}
 		ViewManager::show('header', ['title' => 'Обновление категории товара №' . $section['SECTION_ID']]);
 
-		$result['result'] = [
-			'action' => '/product-section/update/',
-			'items' => [
-				[
-					'name' => 'Название категории',
-					'code' => 'NAME',
-					'type' => 'text',
-					'value' => $section['SECTION_NAME'],
-					'list_values' => []
-				],
-				[
-					'code' => 'ID',
-					'value' => $section['SECTION_ID']
-				]
-			],
-		];
 		ViewManager::show('query', ['query' => Tools::getQuery()]);
-		ViewManager::show('record', $result);
+		ViewManager::show('record', $result ?? []);
 
 		ViewManager::show('footer');
 		return '';
@@ -112,9 +130,15 @@ class SectionController extends Controller
 
 	public static function updateAction()
 	{
-		SectionTable::update($_POST['ID'], [
-			'NAME' => $_POST['NAME'],
-		]);
+		try
+		{
+			SectionTable::update($_POST['ID'], [
+				'NAME' => $_POST['NAME'],
+			]);
+		}catch (\Throwable $e)
+		{
+			$_SESSION['alert'][] = $e->getMessage();
+		}
 
 		header('Location: /product-section/');
 		die();
@@ -122,7 +146,13 @@ class SectionController extends Controller
 
 	public static function deleteAction()
 	{
-		SectionTable::delete($_GET['id']);
+		try
+		{
+			SectionTable::delete($_GET['id']);
+		}catch (\Throwable $e)
+		{
+			$_SESSION['alert'][] = $e->getMessage();
+		}
 		header('Location: /product-section/');
 		die();
 	}

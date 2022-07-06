@@ -1,12 +1,16 @@
-<?php /* @var array $params */ ?>
-
-<?php if ($params['result']['items']):?>
-<?php if (isset($params['result']['alert'])):?>
-<div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-    <?=$params['result']['alert']['text']?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
+<?php
+/* @var array $params */
+$errors = $_SESSION['alert'] ?? [];
+unset($_SESSION['alert']);
+?>
+<?php if ($errors):?>
+    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+        <h4 class="alert-heading">Ошибка!</h4>
+        <p><?=implode('</p><hr><p>', $errors)?></p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 <?php endif;?>
+<?php if (isset($params['result']['items']) && $params['result']['items']):?>
 <table class="table table-striped mt-3">
 	<thead>
 	<tr>

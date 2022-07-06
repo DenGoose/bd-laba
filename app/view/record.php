@@ -1,4 +1,15 @@
-<?php /* @var array $params */ ?>
+<?php
+/* @var array $params */
+$errors = $_SESSION['alert'] ?? [];
+unset($_SESSION['alert']);
+?>
+<?php if ($errors):?>
+    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+        <h4 class="alert-heading">Ошибка!</h4>
+        <p><?=implode('</p><hr><p>', $errors)?></p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif;?>
     <form class="pt-4" method="post" action="<?=$params['result']['action']?>" enctype="multipart/form-data">
     <?php foreach ($params['result']['items'] as $item): ?>
             <?php if (isset($item['value']) && ($item['code'] == 'id' || $item['code'] == 'ID')):?>

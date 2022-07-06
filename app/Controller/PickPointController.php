@@ -13,26 +13,32 @@ class PickPointController extends Controller
 	{
 		ViewManager::show('header', ['title' => 'Пункты выдачи']);
 
-		$result['currentUrl'] = $_SERVER['REQUEST_URI'];
-		$result['result'] = [
-			'columns' => [
-				'ID', 'Адрес',
-			]
-		];
-
-		$ob = PickPointTable::query()
-			->addSelect('ID', 'PICK_POINT_ID')
-			->addSelect('ADDRESS', 'PICK_POINT_ADDRESS');
-
-		$query = $ob->getQuery();
-		$users = $ob->exec();
-
-		while ($itm = $users->fetch())
+		try
 		{
-			$result['result']['items'][] = [
-				'ID' => $itm['PICK_POINT_ID'],
-				'ADDRESS' => $itm['PICK_POINT_ADDRESS'],
+			$result['currentUrl'] = $_SERVER['REQUEST_URI'];
+			$result['result'] = [
+				'columns' => [
+					'ID', 'Адрес',
+				]
 			];
+
+			$ob = PickPointTable::query()
+				->addSelect('ID', 'PICK_POINT_ID')
+				->addSelect('ADDRESS', 'PICK_POINT_ADDRESS');
+
+			$query = $ob->getQuery();
+			$users = $ob->exec();
+
+			while ($itm = $users->fetch())
+			{
+				$result['result']['items'][] = [
+					'ID' => $itm['PICK_POINT_ID'],
+					'ADDRESS' => $itm['PICK_POINT_ADDRESS'],
+				];
+			}
+		}catch (\Throwable $e)
+		{
+			$_SESSION['alert'][] = $e->getMessage();
 		}
 
 		ViewManager::show('query', ['query' => Tools::getQuery()]);
@@ -66,9 +72,15 @@ class PickPointController extends Controller
 
 	public static function addAction()
 	{
-		$productId = PickPointTable::add([
-			'ADDRESS' => $_POST['ADDRESS']
-		]);
+		try
+		{
+			PickPointTable::add([
+				'ADDRESS' => $_POST['ADDRESS']
+			]);
+		}catch (\Throwable $e)
+		{
+			$_SESSION['alert'][] = $e->getMessage();
+		}
 
 		header('Location: /pick-point/');
 		die();
@@ -76,34 +88,40 @@ class PickPointController extends Controller
 
 	public static function update()
 	{
-		$ob = PickPointTable::query()
-			->where('ID', $_GET['id'])
-			->addSelect('ID', 'PICK_POINT_ID')
-			->addSelect('ADDRESS', 'PICK_POINT_ADDRESS');
+		try
+		{
+			$ob = PickPointTable::query()
+				->where('ID', $_GET['id'])
+				->addSelect('ID', 'PICK_POINT_ID')
+				->addSelect('ADDRESS', 'PICK_POINT_ADDRESS');
 
-		$query = $ob->getQuery();
-		$stock = $ob->exec()->fetch();
+			$query = $ob->getQuery();
+			$stock = $ob->exec()->fetch();
 
+			$result['result'] = [
+				'action' => '/pick-point/update/',
+				'items' => [
+					[
+						'name' => 'Адрес',
+						'code' => 'ADDRESS',
+						'type' => 'text',
+						'value' => $stock['PICK_POINT_ADDRESS'],
+						'list_values' => []
+					],
+					[
+						'code' => 'ID',
+						'value' => $stock['PICK_POINT_ID']
+					]
+				],
+			];
+		}catch (\Throwable $e)
+		{
+			$_SESSION['alert'][] = $e->getMessage();
+		}
 		ViewManager::show('header', ['title' => 'Обновление пункта выдачи №' . $stock['PICK_POINT_ID']]);
 
-		$result['result'] = [
-			'action' => '/pick-point/update/',
-			'items' => [
-				[
-					'name' => 'Адрес',
-					'code' => 'ADDRESS',
-					'type' => 'text',
-					'value' => $stock['PICK_POINT_ADDRESS'],
-					'list_values' => []
-				],
-				[
-					'code' => 'ID',
-					'value' => $stock['PICK_POINT_ID']
-				]
-			],
-		];
 		ViewManager::show('query', ['query' => Tools::getQuery()]);
-		ViewManager::show('record', $result);
+		ViewManager::show('record', $result ?? []);
 
 		ViewManager::show('footer');
 		return '';
@@ -111,9 +129,15 @@ class PickPointController extends Controller
 
 	public static function updateAction()
 	{
-		PickPointTable::update($_POST['ID'], [
-			'ADDRESS' => $_POST['ADDRESS'],
-		]);
+		try
+		{
+			PickPointTable::update($_POST['ID'], [
+				'ADDRESS' => $_POST['ADDRESS'],
+			]);
+		}catch (\Throwable $e)
+		{
+			$_SESSION['alert'][] = $e->getMessage();
+		}
 
 		header('Location: /pick-point/');
 		die();
@@ -121,7 +145,13 @@ class PickPointController extends Controller
 
 	public static function deleteAction()
 	{
-		PickPointTable::delete($_GET['id']);
+		try
+		{
+			PickPointTable::delete($_GET['id']);
+		}catch (\Throwable $e)
+		{
+			$_SESSION['alert'][] = $e->getMessage();
+		}
 		header('Location: /pick-point/');
 		die();
 	}
