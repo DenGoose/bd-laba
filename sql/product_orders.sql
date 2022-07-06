@@ -1,13 +1,14 @@
 create table product_orders
 (
     PRODUCT_ID int null,
-    ORDER_ID   int null,
-    constraint product_orders_order_ID_fk
-        foreign key (ORDER_ID) references `order` (ID)
-            on delete cascade,
-    constraint product_orders_product_ID_fk
-        foreign key (PRODUCT_ID) references product (ID)
-            on delete cascade
+    ORDER_ID   int null
+# TODO пока не использую ключи, подумать как заменить
+#     constraint product_orders_order_ID_fk
+#         foreign key (ORDER_ID) references `order` (ID)
+#             on delete cascade,
+#     constraint product_orders_product_ID_fk
+#         foreign key (PRODUCT_ID) references product (ID)
+#             on delete cascade
 );
 
 INSERT INTO bitrix.product_orders (PRODUCT_ID, ORDER_ID) VALUES (1, 1);

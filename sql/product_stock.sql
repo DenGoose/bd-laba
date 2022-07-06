@@ -1,13 +1,14 @@
 create table product_stock
 (
     PRODUCT_ID int null,
-    STOCK_ID   int null,
-    constraint product_stock_product_ID_fk
-        foreign key (PRODUCT_ID) references product (ID)
-            on delete cascade,
-    constraint product_stock_stock_ID_fk
-        foreign key (PRODUCT_ID) references stock (ID)
-            on delete cascade
+    STOCK_ID   int null
+# TODO пока не использую ключи, подумать как заменить
+#     constraint product_stock_product_ID_fk
+#         foreign key (PRODUCT_ID) references product (ID)
+#             on delete cascade,
+#     constraint product_stock_stock_ID_fk
+#         foreign key (PRODUCT_ID) references stock (ID)
+#             on delete cascade
 );
 
 INSERT INTO bitrix.product_stock (PRODUCT_ID, STOCK_ID) VALUES (1, 1);
